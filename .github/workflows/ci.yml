@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install with test dependencies
+        run: pip install -e ".[dev]"
+      - name: Run tests
+        run: pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t email-scanner .
+      - name: Start it and check it answers
+        run: |
+          docker run -d --name scanner -p 8000:8000 email-scanner
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8000/healthz && exit 0
+            sleep 1
+          done
+          docker logs scanner
+          exit 1

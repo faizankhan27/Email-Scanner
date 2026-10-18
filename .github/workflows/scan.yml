@@ -1,0 +1,60 @@
+name: Scan a website for emails
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Website to scan, for example https://example.com"
+        required: true
+        type: string
+      max_pages:
+        description: "Maximum number of pages to crawl"
+        required: false
+        default: "200"
+        type: string
+      delay:
+        description: "Seconds to wait between requests"
+        required: false
+        default: "0.5"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the scanner
+        run: pip install .
+
+      - name: Run the scan
+        env:
+          SCAN_URL: ${{ inputs.url }}
+          MAX_PAGES: ${{ inputs.max_pages }}
+          DELAY: ${{ inputs.delay }}
+        run: |
+          email-scanner "$SCAN_URL" \
+            --max-pages "$MAX_PAGES" \
+            --delay "$DELAY" \
+            --output emails_found.csv \
+            --markdown summary.md
+          cat summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emails-found
+          path: emails_found.csv
+          if-no-files-found: ignore
+          retention-days: 30
