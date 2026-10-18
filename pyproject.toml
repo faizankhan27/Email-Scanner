@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "email-scanner"
+version = "1.1.0"
+description = "Crawl a website, list every email on it, and link the best page for each. Includes a web app."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []
+
+[project.optional-dependencies]
+web = ["flask>=3.0", "waitress>=3.0"]
+dev = ["pytest>=7", "flask>=3.0", "waitress>=3.0"]
+
+[project.scripts]
+email-scanner = "email_scanner.cli:main"
+email-scanner-web = "email_scanner.web.app:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"email_scanner.web" = [
+  "templates/*.html",
+  "static/*.css",
+  "static/*.js",
+  "static/fonts/*",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

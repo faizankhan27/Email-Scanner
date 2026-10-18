@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: email-scanner
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      # Render creates a random password for you. Find it under Environment.
+      # Sign in with any username and that password.
+      - key: EMAIL_SCANNER_PASSWORD
+        generateValue: true
