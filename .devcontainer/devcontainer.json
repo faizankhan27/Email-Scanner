@@ -1,0 +1,15 @@
+{
+  "name": "Email Scanner",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "postCreateCommand": "pip install -e \".[dev]\"",
+  "containerEnv": {
+    "EMAIL_SCANNER_HOST": "0.0.0.0"
+  },
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {
+      "label": "Email Scanner",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
